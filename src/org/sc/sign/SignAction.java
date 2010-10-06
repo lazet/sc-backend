@@ -24,7 +24,8 @@ public class SignAction {
 		dbUser.put(LOGIN_NAME, loginName);
 		DBObject dbo = dbc.findOne(dbUser);
 		if(dbo != null && token.equals(dbo.get("password"))){
-			return new GeneralResult("signOn.success","登录成功").toJson();
+			dbo.removeField("password");
+			return new GeneralResult("signOn.success",dbo.toString()).toJson();
 		}
 		else{
 			return new GeneralResult("signOn.failed","密码不正确").toJson();
