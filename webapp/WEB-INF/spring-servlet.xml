@@ -21,10 +21,10 @@
 	</bean>
 	<import resource="spring-storage.xml" />
 
-	<context:component-scan base-package="org.sc.sign"/>
+	<context:component-scan base-package="org.sc"/>
 	<mvc:interceptors>
     	<mvc:interceptor>
-        	<mvc:mapping path="/sign/*"/>
+        	<mvc:mapping path="/**"/>
         	<bean class="org.sc.security.SwitchMongoHandlerIntercepter" />
     	</mvc:interceptor>
 	</mvc:interceptors>

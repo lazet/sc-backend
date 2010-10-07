@@ -16,8 +16,9 @@ import com.mongodb.DBObject;
 
 
 @Controller
+@RequestMapping("/mySettings")
 public class MySettingsAction {
-	@RequestMapping("/mySettings/get")
+	@RequestMapping("/get")
 	public @ResponseBody String getMySettings(@RequestParam("loginName") String loginName) {
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(USER);
 		DBObject dbUser =  new BasicDBObject();
@@ -31,7 +32,7 @@ public class MySettingsAction {
 			return new GeneralResult("getMySettings.failed","").toJson();
 		}
 	}
-	@RequestMapping("/mySettings/save")
+	@RequestMapping("/save")
 	public @ResponseBody String saveMySettings(@RequestParam("loginName") String loginName, @RequestParam("oldPass") String oldPass, @RequestParam("newPass") String newPass,@RequestParam("trueName") String trueName, @RequestParam("mobile") String mobile, @RequestParam("email") String email) {
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(USER);
 		DBObject dbUser =  new BasicDBObject();

@@ -11,7 +11,11 @@ public interface Constants {
 	static public String MERCHANT_NAME = "merchantName";
 	static public String ROOT_USER_NAME = "rootUserName";
 	static public String MERCHANT_TYPE = "merchantType";
-	
+	static public String DB_NAME = "dbName";
+	//SESSION库变量命名
+	static public String SESSION_DB = "session";	
+	static public String SESSION_INFO = "sessionInfo";
+	static public String SESSION_ID = "sessionId";
 	//商户库变量名
 	static public String USER = "user";
 	static public String USER_ID = "userId";

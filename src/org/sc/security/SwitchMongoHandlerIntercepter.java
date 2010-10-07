@@ -1,5 +1,6 @@
 package org.sc.security;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,9 +27,19 @@ public class SwitchMongoHandlerIntercepter implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest req, HttpServletResponse resp,
 			Object handler) throws Exception {
+		String sId = this.getSessionId(req);
 		String unitName = req.getParameter("unitName");
-		MongoDbUtil.setCurrentInfo(unitName);
+		String loginName = req.getParameter("loginName");		
+		MongoDbUtil.setCurrentInfo(unitName, sId, loginName);
 		return true;
 	}
-
+	private String getSessionId(HttpServletRequest req){
+		Cookie[] cs = req.getCookies();
+		for(Cookie c : cs){
+			if("_sessionId".equals(c.getName())){
+				return c.getValue();
+			}
+		}
+		return null;
+	}
 }

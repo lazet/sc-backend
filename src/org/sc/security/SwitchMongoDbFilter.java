@@ -6,6 +6,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -21,10 +22,20 @@ public class SwitchMongoDbFilter extends GenericFilterBean  implements Initializ
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp,
 			FilterChain chain) throws IOException, ServletException {
+		String sId = this.getSessionId((HttpServletRequest)req);
 		String unitName = req.getParameter("unitName");
-		MongoDbUtil.setCurrentInfo(unitName);
+		String loginName = req.getParameter("loginName");		
+		MongoDbUtil.setCurrentInfo(unitName, sId, loginName);
 		chain.doFilter(req, resp);
 	}
-
+	private String getSessionId(HttpServletRequest req){
+		Cookie[] cs = req.getCookies();
+		for(Cookie c : cs){
+			if("_sessionId".equals(c.getName())){
+				return c.getValue();
+			}
+		}
+		return null;
+	}
 	
 }
