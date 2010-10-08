@@ -6,5 +6,5 @@ package org.sc.user;
  *
  */
 public class GroupAction {
-	
+
 }

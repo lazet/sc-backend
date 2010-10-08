@@ -28,7 +28,7 @@ public class MerchantAction {
 	/**
 	 * 检查编号是否是否有效
 	 * @param merchantId
-	 * @return
+	 * @return 
 	 */
 	public boolean checkIsValid(String merchantId){
 		if(merchantId == null || BASE_DB.equalsIgnoreCase(merchantId)){

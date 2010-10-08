@@ -16,6 +16,13 @@ public class GeneralResult {
 				.append("\"content\"").append(":").append(content)
 				.append("}");
 		}
+		else if(this.content!=null && this.content.startsWith("[") && this.content.endsWith("]")){
+			sb.append("{")
+			.append("\"type\"").append(":").append("\"").append(type).append("\"")
+			.append(",")
+			.append("\"content\"").append(":").append(content)
+			.append("}");
+		}
 		else{
 			sb.append("{")
 				.append("\"type\"").append(":").append("\"").append(type).append("\"")
@@ -24,6 +31,5 @@ public class GeneralResult {
 				.append("}");
 		}
 		return sb.toString();
-		
 	}
 }

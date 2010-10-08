@@ -421,7 +421,6 @@ public class DateUtil {
         Calendar now = Calendar.getInstance();
         return getTimeStr(now);
     }
-
     /**
      * 取当前时间的字符串
      * @return

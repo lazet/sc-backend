@@ -11,7 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 public class MongoFactoryBean implements InitializingBean,FactoryBean{
 	private String address;
-	public String getAddress() {
+	public String getAddress(){
 		return address;
 	}
 	public void setAddress(String address) {

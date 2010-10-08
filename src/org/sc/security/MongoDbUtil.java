@@ -39,7 +39,7 @@ public class MongoDbUtil {
 			}
 		}
 		if(unitName != null){
-			//忽视SessionInfo,一般在登录和修改个人信息设定起效
+			//忽视SessionInfo,一般在登录和修改个人信息设定起效.
 			DB baseDb = mongo.getDB(BASE_DB);
 			DBObject unitInfo = baseDb.getCollection(MERCHANT).findOne(new BasicDBObject(MERCHANT_ID,unitName));
 			if (unitInfo!= null){				

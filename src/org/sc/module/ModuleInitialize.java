@@ -2,7 +2,7 @@ package org.sc.module;
 
 /**
  * 模块初始化
- * @author admin
+ * @author admin 
  *
  */
 public interface ModuleInitialize {

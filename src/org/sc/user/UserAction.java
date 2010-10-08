@@ -6,5 +6,4 @@ package org.sc.user;
  *
  */
 public class UserAction {
-
 }
