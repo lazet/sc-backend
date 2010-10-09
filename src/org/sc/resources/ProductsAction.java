@@ -1,5 +1,6 @@
 package org.sc.resources;
 
+import static org.sc.base.Constants.LOGIN_NAME;
 import static org.sc.base.Constants.USER;
 
 import java.util.Iterator;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -40,10 +42,10 @@ public class ProductsAction{
 		return null;
 	}
 	@RequestMapping("/category/get")
-	public @ResponseBody String getCategory(@RequestParam("size") int size) {
+	public @ResponseBody String getCategory(@RequestParam("pageFrom") int pageFrom,@RequestParam("size") int size) {
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(CATEGORY);
 		List result = new BasicDBList();
-		DBCursor cursor = dbc.find();
+		DBCursor cursor = dbc.find().skip((pageFrom-1) * size).limit(size);
 		int count = 0;
 		while(cursor.hasNext()){
 			if(count >= size){
@@ -55,5 +57,51 @@ public class ProductsAction{
 		}
 		
 		return new GeneralResult("getProductCategory.success",result.toString()).toJson();
+	}
+	@RequestMapping("/category/delete")
+	public @ResponseBody String deleteCategory(@RequestParam("label") String label,@RequestParam("pageFrom") int pageFrom,@RequestParam("size") int size) {
+		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(CATEGORY);
+		DBObject dbLabel =  new BasicDBObject();
+		dbLabel.put("label", label);
+		dbc.remove(dbLabel);
+		List result = new BasicDBList();
+		DBCursor cursor = dbc.find().skip((pageFrom-1) * size).limit(size);
+		int count = 0;
+		while(cursor.hasNext()){
+			if(count >= size){
+				break;
+			}
+			DBObject dbo = cursor.next();
+			result.add(dbo);
+			count ++;
+		}
+		
+		return new GeneralResult("deleteProductCategory.success",result.toString()).toJson();
+	}
+	@RequestMapping("/category/add")
+	public @ResponseBody String addCategory(@RequestParam("label") String label,@RequestParam("pageFrom") int pageFrom,@RequestParam("size") int size) {
+		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(CATEGORY);
+		DBObject dbLabel =  new BasicDBObject();
+		dbLabel.put("label", label);
+		DBObject oldLabel = dbc.findOne(dbLabel);
+		if(oldLabel != null){
+			return new GeneralResult("addProductCategory.failed","品类已存在").toJson();
+		}
+		else{
+			dbc.save(dbLabel);
+		}
+		List result = new BasicDBList();
+		DBCursor cursor = dbc.find().skip((pageFrom-1) * size).limit(size);
+		int count = 0;
+		while(cursor.hasNext()){
+			if(count >= size){
+				break;
+			}
+			DBObject dbo = cursor.next();
+			result.add(dbo);
+			count ++;
+		}
+		
+		return new GeneralResult("addProductCategory.success",result.toString()).toJson();
 	}
 }
