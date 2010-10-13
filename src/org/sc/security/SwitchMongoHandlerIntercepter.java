@@ -34,6 +34,8 @@ public class SwitchMongoHandlerIntercepter implements HandlerInterceptor {
 	}
 	private String getSessionId(HttpServletRequest req){
 		Cookie[] cs = req.getCookies();
+		if(cs == null)
+			return null;
 		for(Cookie c : cs){
 			if("_sessionId".equals(c.getName())){
 				return c.getValue();

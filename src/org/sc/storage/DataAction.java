@@ -23,7 +23,7 @@ public class DataAction {
 	@RequestMapping("/insert")
 	public @ResponseBody String save(
 			@RequestParam("collection") String collection,
-			@RequestParam("object") String json
+			@RequestParam("obj") String json
 			){
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(collection);
 		DBObject dbo = (DBObject)JSON.parse(json);
@@ -34,7 +34,7 @@ public class DataAction {
 	public @ResponseBody String update(
 			@RequestParam("collection") String collection,
 			@RequestParam("condition") String condition,
-			@RequestParam("object") String json
+			@RequestParam("obj") String json
 			){
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(collection);
 		DBObject dbcondition = (DBObject)JSON.parse(condition);
@@ -66,11 +66,17 @@ public class DataAction {
 	@RequestMapping("/findAll")
 	public @ResponseBody String find(
 			@RequestParam("collection") String collection,
-			@RequestParam("condition") String condition
+			@RequestParam("condition") String condition,
+			@RequestParam("order") String order
 			){
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(collection);
 		DBObject dbcondition = (DBObject)JSON.parse(condition);
-		DBCursor cursor = dbc.find(dbcondition);
+		DBObject orderBy = (DBObject)JSON.parse(order);
+		DBCursor cursor = null;
+		if(order == null || "".equals(order))
+			cursor = dbc.find(dbcondition);
+		else
+			cursor = dbc.find(dbcondition).sort(orderBy);
 		List result = new BasicDBList();
 		int count = 0;
 		while(cursor.hasNext()){
@@ -80,19 +86,26 @@ public class DataAction {
 			DBObject dbo = cursor.next();
 			result.add(dbo);
 			count ++;
-		}		
+		}
 		return new GeneralResult(collection + ".findAll",result).toString();
 	}
 	@RequestMapping("/findByPage")
 	public @ResponseBody String findByPage(
 			@RequestParam("collection") String collection,
 			@RequestParam("condition") String condition,
+			@RequestParam("order") String order,
 			@RequestParam("pageFrom") int pageFrom,
 			@RequestParam("size") int size
 			){
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(collection);
 		DBObject dbcondition = (DBObject)JSON.parse(condition);
-		DBCursor cursor = dbc.find(dbcondition).skip((pageFrom-1) * size).limit(size);
+		DBObject orderBy = (DBObject)JSON.parse(order);
+		
+		DBCursor cursor = null;
+		if(order == null || "".equals(order))
+			cursor = dbc.find(dbcondition).skip((pageFrom-1) * size).limit(size);
+		else
+			cursor = dbc.find(dbcondition).sort(orderBy).skip((pageFrom-1) * size).limit(size);
 		List result = new BasicDBList();
 		int count = 0;
 		while(cursor.hasNext()){
