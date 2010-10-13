@@ -49,10 +49,10 @@ public class SignAction {
 			session.put(LOGIN_NAME, loginName);
 			session.put("startTime", DateUtil.getNow());
 			sessionCollection.save(session);
-			return new GeneralResult("signOn.success",dbo.toString()).toJson();
+			return new GeneralResult("signOn.success",dbo).toString();
 		}
 		else{
-			return new GeneralResult("signOn.failed","密码不正确").toJson();
+			return new GeneralResult("signOn.failed","密码不正确").toString();
 		}
 	}
 	private String genSessionId(HttpServletRequest request){

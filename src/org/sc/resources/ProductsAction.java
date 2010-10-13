@@ -28,6 +28,7 @@ import com.mongodb.BasicDBList;
 @RequestMapping("/product")
 public class ProductsAction{
 	static public String CATEGORY = "category";
+	static public String PRODUCT_DEFINE = "productDefine";
 	@RequestMapping("/add")
 	public @ResponseBody String add(
 			@RequestParam("productName") String productName,
@@ -56,7 +57,7 @@ public class ProductsAction{
 			count ++;
 		}
 		
-		return new GeneralResult("getProductCategory.success",result.toString()).toJson();
+		return new GeneralResult("getProductCategory.success",result).toString();
 	}
 	@RequestMapping("/category/delete")
 	public @ResponseBody String deleteCategory(@RequestParam("label") String label,@RequestParam("pageFrom") int pageFrom,@RequestParam("size") int size) {
@@ -76,7 +77,7 @@ public class ProductsAction{
 			count ++;
 		}
 		
-		return new GeneralResult("deleteProductCategory.success",result.toString()).toJson();
+		return new GeneralResult("deleteProductCategory.success",result).toString();
 	}
 	@RequestMapping("/category/add")
 	public @ResponseBody String addCategory(@RequestParam("label") String label,@RequestParam("pageFrom") int pageFrom,@RequestParam("size") int size) {
@@ -85,7 +86,7 @@ public class ProductsAction{
 		dbLabel.put("label", label);
 		DBObject oldLabel = dbc.findOne(dbLabel);
 		if(oldLabel != null){
-			return new GeneralResult("addProductCategory.failed","品类已存在").toJson();
+			return new GeneralResult("addProductCategory.failed","品类已存在").toString();
 		}
 		else{
 			dbc.save(dbLabel);
@@ -102,6 +103,7 @@ public class ProductsAction{
 			count ++;
 		}
 		
-		return new GeneralResult("addProductCategory.success",result.toString()).toJson();
+		return new GeneralResult("addProductCategory.success",result).toString();
 	}
+ 
 }

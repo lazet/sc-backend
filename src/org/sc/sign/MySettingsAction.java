@@ -26,10 +26,10 @@ public class MySettingsAction {
 		DBObject dbo = dbc.findOne(dbUser);
 		if(dbo != null){
 			dbo.removeField("password");
-			return new GeneralResult("getMySettings.success",dbo.toString()).toJson();
+			return new GeneralResult("getMySettings.success",dbo).toString();
 		}
 		else{
-			return new GeneralResult("getMySettings.failed","").toJson();
+			return new GeneralResult("getMySettings.failed","").toString();
 		}
 	}
 	@RequestMapping("/save")
@@ -45,14 +45,14 @@ public class MySettingsAction {
 				dbo.put("mobile",mobile);
 				dbo.put("email",email);
 				dbc.save(dbo);
-				return new GeneralResult("saveMySettings.success",dbo.toString()).toJson();
+				return new GeneralResult("saveMySettings.success",dbo).toString();
 			}
 			else{
-				return new GeneralResult("saveMySettings.failed","密码不一致").toJson();
+				return new GeneralResult("saveMySettings.failed","密码不一致").toString();
 			}
 		}
 		else{
-			return new GeneralResult("saveMySettings.failed","没找到对应的个人信息").toJson();
+			return new GeneralResult("saveMySettings.failed","没找到对应的个人信息").toString();
 		}
 	}
 }
