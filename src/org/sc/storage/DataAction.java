@@ -13,6 +13,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.BasicDBObject;
+import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
 import org.sc.util.GeneralResult;
@@ -40,8 +41,8 @@ public class DataAction {
 		DBObject dbcondition = (DBObject)JSON.parse(condition);
 		DBObject dbo = (DBObject)JSON.parse("{\"$set\":" + json + "}");
 		
-		DBObject oldObject = dbc.findAndModify(dbcondition, dbo);
-		return new  GeneralResult(collection + ".update" ,oldObject).toString();
+		WriteResult wr = dbc.update(dbcondition, dbo, false, true);
+		return new  GeneralResult(collection + ".update" ,wr.getLastError()).toString();
 	}
 	@RequestMapping("/get")
 	public @ResponseBody String get(
