@@ -29,7 +29,9 @@ public class MongoFactoryBean implements InitializingBean,FactoryBean{
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
+
 		m = new Mongo( address , port );
+
 		//初始化商户列表的索引
 		m.getDB(BASE_DB).getCollection(MERCHANT).ensureIndex(new BasicDBObject(MERCHANT_ID, 1));
 		MongoDbUtil.setMongo(m);

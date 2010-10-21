@@ -47,7 +47,7 @@ public class SignAction {
 			session.put(DB_NAME, MongoDbUtil.getCurrentDbName());
 			session.put(MERCHANT_ID, MongoDbUtil.getCurrentUnitName());
 			session.put(LOGIN_NAME, loginName);
-			session.put("startTime", DateUtil.getNow());
+			session.put("startTime", DateUtil.getCurrentTime());
 			sessionCollection.save(session);
 			return new GeneralResult("signOn.success",dbo).toString();
 		}

@@ -54,10 +54,25 @@ public interface Constants {
 	static public String FUNCTION_NAME = "function_name";
 	static public String FUNCTION_LEVEL = "function_level";
 	
+	//数据类型
+	static public String STRING_TYPE = "String";
+	static public String INTEGER_TYPE = "Integer";
+	static public String MONEY_TYPE = "Money";
+	static public String SELECT_ONE_TYPE = "SelectOne";
+	static public String PRODUCT_CATEGORY_TYPE = "ProductCategory";
+	static public String DATE_TYPE = "Date";
+	static public String TIME_TYPE = "Time";
+	static public String CURRENT_USER = "currentUser";
+	static public String NOW = "now";
+	static public String KEYWORDS = "keywords";
 	
-	
-	
-	
-	
-	
+	//数据类型定义
+	static public String ITEM_NAME = "itemName";
+	static public String UNIQUE = "unique";
+	static public String SHOW_IN_LIST = "showInList";
+	static public String LIMITS = "limits";
+	static public String REQUIRED = "required";
+	static public String DATA_TYPE = "dataType";
+	static public String BASIC = "basic";
+	static public String ORDER = "order";
 }

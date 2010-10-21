@@ -39,7 +39,7 @@ public class DataAction {
 			){
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(collection);
 		DBObject dbcondition = (DBObject)JSON.parse(condition);
-		DBObject dbo = (DBObject)JSON.parse("{\"$set\":" + json + "}");
+		DBObject dbo = (DBObject)JSON.parse( json );
 		
 		WriteResult wr = dbc.update(dbcondition, dbo, false, true);
 		return new  GeneralResult(collection + ".update" ,wr.getLastError()).toString();
