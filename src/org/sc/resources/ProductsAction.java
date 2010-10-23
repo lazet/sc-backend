@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sc.security.MongoDbUtil;
 import org.sc.util.DateUtil;
 import org.sc.util.GeneralResult;
+import org.sc.util.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +26,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.BasicDBList;
+import com.mongodb.WriteResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +42,7 @@ import org.apache.commons.lang.StringUtils;
 public class ProductsAction{
 	static public String CATEGORY = "category";
 	static public String PRODUCT_DEFINE = "productDefine";
-	static public String PRODUCTS = "products";
+	static public String PRODUCT = "product";
 	static public Log logger = LogFactory.getLog(ProductsAction.class);
 	
 	@RequestMapping("/add")
@@ -53,37 +55,33 @@ public class ProductsAction{
 			DBObject dbo = cursor.next();
 			result.add(dbo);
 		}
-		DBCollection productc = MongoDbUtil.getCurrentDb().getCollection(PRODUCTS);
+		DBCollection productc = MongoDbUtil.getCurrentDb().getCollection(PRODUCT);
 		//生成数据对象
 		DBObject dbo =  new BasicDBObject();
 		Set<String> keywords = new HashSet<String>(); 
 		//校验数据，如果不合格，则返回错误信息
 		for(DBObject o: result){
-			String normalItemName = null;
+			String normalItemName = (String) o.get(ITEM_NAME);
 			try{
-				normalItemName = new String(((String) o.get(ITEM_NAME)).getBytes("iso-8859-1"),"utf-8");
+			System.out.println(new String(normalItemName.getBytes("iso-8859-1"),"utf-8"));
 			}
-			catch(Exception e){
-				e.printStackTrace();
-				logger.info(o.get(ITEM_NAME),e);
-			}
+			catch(Exception e){}
 			String value = request.getParameter(normalItemName);
-			System.out.println(value);
 			//判断类型
 			if (STRING_TYPE.equals(o.get(DATA_TYPE))){
 				if(value != null && !"".equals(value)){
 					keywords.add(value);
 				}
-				dbo.put((String) o.get(ITEM_NAME), value);
+				dbo.put(normalItemName, value);
 			}else if (INTEGER_TYPE.equals(o.get(DATA_TYPE))){
 				if(value != null && !"".equals(value)){
 					keywords.add(value);
 				}
 				try{
-					dbo.put((String) o.get(ITEM_NAME), Integer.parseInt(value));
+					dbo.put(normalItemName, Integer.parseInt(value));
 				}catch(Exception e){
 					e.printStackTrace();
-					logger.info(o.get(ITEM_NAME) + " " + o.get(DATA_TYPE),e);
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
 				}
 			}else if (MONEY_TYPE.equals(o.get(DATA_TYPE))){
 				if(value != null && !"".equals(value)){
@@ -91,62 +89,68 @@ public class ProductsAction{
 				}
 				try{
 					if(value != null)
-						dbo.put((String) o.get(ITEM_NAME), Integer.parseInt(value));
+						dbo.put(normalItemName, (new BigDecimal(value).multiply(new BigDecimal("100"))).intValue());
 				}catch(Exception e){
 					e.printStackTrace();
-					logger.info(o.get(ITEM_NAME) + " " + o.get(DATA_TYPE),e);
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
 				}
 			}else if (SELECT_ONE_TYPE.equals(o.get(DATA_TYPE))){
 				if(value != null && !"".equals(value)){
 					keywords.add(value);
 				}
 				try{
-					dbo.put((String) o.get(ITEM_NAME), value);
+					dbo.put(normalItemName, value);
 				}catch(Exception e){
 					e.printStackTrace();
-					logger.info(o.get(ITEM_NAME) + " " + o.get(DATA_TYPE),e);
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
 				}
 			}else if (PRODUCT_CATEGORY_TYPE.equals(o.get(DATA_TYPE))){
 				try{
 					if(value != null){
 						String[] tags = StringUtils.split(value, ' ');
+						Set<String> categorys = new HashSet<String>(); 
 						for (String tag : tags){
-							keywords.add(tag);
+							if(tag != null && !"".equals(tag)){
+								keywords.add(tag);
+								categorys.add(tag);
+							}
 						}
-						dbo.put((String) o.get(ITEM_NAME), tags);
+						dbo.put(normalItemName, categorys);
 					}
 				}catch(Exception e){
 					e.printStackTrace();
-					logger.info(o.get(ITEM_NAME) + " " + o.get(DATA_TYPE),e);
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
 				}
 			}else if (NOW.equals(o.get(DATA_TYPE))){
 				keywords.add(DateUtil.getCurrentDate());
-				dbo.put((String) o.get(ITEM_NAME), DateUtil.getCurrentTime());
+				dbo.put(normalItemName, DateUtil.getCurrentTime());
 			}else if (CURRENT_USER.equals(o.get(DATA_TYPE))){
 				keywords.add(MongoDbUtil.getCurrentLoginName());
-				dbo.put((String) o.get(ITEM_NAME), MongoDbUtil.getCurrentLoginName());
+				dbo.put(normalItemName, MongoDbUtil.getCurrentLoginName());
 			}
 			//校验唯一性
 			if((Boolean) o.get(UNIQUE)){
 				DBObject condition =  new BasicDBObject();
 				if(value != null){
-					condition.put((String) o.get(ITEM_NAME), value);
+					condition.put(normalItemName, value);
 					DBObject r =productc.findOne(condition);
 					if(r != null){
-						return new GeneralResult("addProduct.failed",(String) o.get(ITEM_NAME) + "不唯一").toString();
+						return new GeneralResult("addProduct.failed",normalItemName + StringUtil.toIso8859("不唯一")).toString();
 					}
 				}
 			}
 		}
 		dbo.put(KEYWORDS, keywords);
 		//保存
+		WriteResult wr = null;
 		try{
-			productc.save(dbo);
+			wr = productc.save(dbo);
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			return new GeneralResult("addProduct.failed",e.getMessage()).toString();
 		}
-		return new GeneralResult("addProduct.success",dbo).toString();
+		return new GeneralResult("addProduct.success",wr.getLastError()).toString();
 	}
 	/***********以下是品类管理*************/
 	@RequestMapping("/category/get")

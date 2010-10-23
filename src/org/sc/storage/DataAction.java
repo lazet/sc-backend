@@ -101,22 +101,26 @@ public class DataAction {
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(collection);
 		DBObject dbcondition = (DBObject)JSON.parse(condition);
 		DBObject orderBy = (DBObject)JSON.parse(order);
-		
+		// 最终结果
+		DBObject r = new BasicDBObject();
+		r.put("total", dbc.count(dbcondition));
 		DBCursor cursor = null;
 		if(order == null || "".equals(order))
 			cursor = dbc.find(dbcondition).skip((pageFrom-1) * size).limit(size);
 		else
 			cursor = dbc.find(dbcondition).sort(orderBy).skip((pageFrom-1) * size).limit(size);
-		List result = new BasicDBList();
+		
+		List dataset = new BasicDBList();
 		int count = 0;
 		while(cursor.hasNext()){
 			if(count >= 500){
 				break;
 			}
 			DBObject dbo = cursor.next();
-			result.add(dbo);
+			dataset.add(dbo);
 			count ++;
-		}		
-		return new GeneralResult(collection + ".findByPage",result).toString();
+		}
+		r.put("dataset", dataset);
+		return new GeneralResult(collection + ".findByPage",r).toString();
 	}
 }
