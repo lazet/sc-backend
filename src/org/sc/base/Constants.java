@@ -75,4 +75,6 @@ public interface Constants {
 	static public String DATA_TYPE = "dataType";
 	static public String BASIC = "basic";
 	static public String ORDER = "order";
+	static public String IS_PREMARY_KEY = "isPrimaryKey";
+	static public String IS_FINAL = "isFinal";
 }

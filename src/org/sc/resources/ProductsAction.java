@@ -4,6 +4,7 @@ import static org.sc.base.Constants.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -151,6 +152,119 @@ public class ProductsAction{
 			return new GeneralResult("addProduct.failed",e.getMessage()).toString();
 		}
 		return new GeneralResult("addProduct.success",wr.getLastError()).toString();
+	}
+	@RequestMapping("/update")
+	public @ResponseBody String update(HttpServletRequest  request) {
+		//获取商品定义列表
+		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(PRODUCT_DEFINE);
+		List<DBObject> result = new ArrayList<DBObject>();
+		//获取主键名称
+		String pkItemName = null;
+		
+		DBCursor cursor = dbc.find();
+		while(cursor.hasNext()){
+			DBObject dbo = cursor.next();
+			if(dbo.get(IS_PREMARY_KEY) != null && (Boolean) dbo.get(IS_PREMARY_KEY) && pkItemName == null)
+				pkItemName = (String) dbo.get(ITEM_NAME);
+			result.add(dbo);
+		}
+		DBCollection productc = MongoDbUtil.getCurrentDb().getCollection(PRODUCT);
+		//根据主键获取旧对象
+		DBObject condition =  new BasicDBObject();
+		condition.put(pkItemName, request.getParameter(pkItemName));
+		DBObject dbo = productc.findOne(condition);
+		if(dbo == null){
+			return new GeneralResult("updateProduct.failed",pkItemName + StringUtil.toIso8859("不存在")).toString();
+		}
+		//校验数据，如果不合格，则返回错误信息
+		for(DBObject o: result){
+			String normalItemName = (String) o.get(ITEM_NAME);
+			String value = request.getParameter(normalItemName);
+			
+			Boolean isFinal = ((Boolean)o.get(IS_FINAL));
+			if(isFinal != null && isFinal)continue;
+			//判断类型
+			if (STRING_TYPE.equals(o.get(DATA_TYPE))){
+				dbo.put(normalItemName, value);
+			}else if (INTEGER_TYPE.equals(o.get(DATA_TYPE))){
+				try{
+					dbo.put(normalItemName, Integer.parseInt(value));
+				}catch(Exception e){
+					e.printStackTrace();
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
+				}
+			}else if (MONEY_TYPE.equals(o.get(DATA_TYPE))){
+				try{
+					if(value != null)
+						dbo.put(normalItemName, (new BigDecimal(value).multiply(new BigDecimal("100"))).intValue());
+				}catch(Exception e){
+					e.printStackTrace();
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
+				}
+			}else if (SELECT_ONE_TYPE.equals(o.get(DATA_TYPE))){
+				try{
+					dbo.put(normalItemName, value);
+				}catch(Exception e){
+					e.printStackTrace();
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
+				}
+			}else if (PRODUCT_CATEGORY_TYPE.equals(o.get(DATA_TYPE))){
+				try{
+					if(value != null){
+						String[] tags = StringUtils.split(value, ' ');
+						Set<String> categorys = new HashSet<String>(); 
+						for (String tag : tags){
+							if(tag != null && !"".equals(tag)){
+								categorys.add(tag);
+							}
+						}
+						dbo.put(normalItemName, categorys);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
+				}
+			}else if (NOW.equals(o.get(DATA_TYPE))){
+				dbo.put(normalItemName, DateUtil.getCurrentTime());
+			}else if (CURRENT_USER.equals(o.get(DATA_TYPE))){
+				dbo.put(normalItemName, MongoDbUtil.getCurrentLoginName());
+			}
+		}
+		this.generatedKeyWords(dbo);
+		
+		//更新保存
+		WriteResult wr = null;
+		try{
+			wr = productc.save(dbo);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return new GeneralResult("updateProduct.failed",e.getMessage()).toString();
+		}
+		return new GeneralResult("updateProduct.success",wr.getLastError()).toString();
+	}
+	protected void generatedKeyWords(DBObject dbo){
+		Set<String> keySet = dbo.keySet();
+		Set<String> keywords = new HashSet<String>(); 
+		for(String key:keySet){
+			if(KEYWORDS.equals(key) || "_id".equals(KEYWORDS))
+				continue;
+			Object v = dbo.get(key);
+			if(v == null)
+				continue;
+			else{
+				if(v instanceof Collection){
+					keywords.addAll((Collection)v);
+				}
+				else{
+					String value = String.valueOf(v);
+					if("".equals(value))
+						continue;
+					keywords.add(value);
+				}
+			}
+		}
+		dbo.put(KEYWORDS, keywords);
 	}
 	/***********以下是品类管理*************/
 	@RequestMapping("/category/get")
