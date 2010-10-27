@@ -15,6 +15,7 @@ import com.mongodb.DBObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
+import com.mongodb.util.JSONCallback;
 
 import org.sc.util.GeneralResult;
 
@@ -60,7 +61,7 @@ public class DataAction {
 			@RequestParam("condition") String condition
 			){
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(collection);
-		DBObject dbcondition = (DBObject)JSON.parse(condition);
+		DBObject dbcondition = (DBObject)JSON.parse(condition,new JSONCallback());
 		DBObject dbo = dbc.findAndRemove(dbcondition);
 		return new  GeneralResult(collection + ".delete" ,dbo).toString();
 	}

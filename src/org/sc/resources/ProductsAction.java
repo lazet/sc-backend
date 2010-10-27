@@ -28,6 +28,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.BasicDBList;
 import com.mongodb.WriteResult;
+import com.mongodb.util.JSON;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -329,6 +330,13 @@ public class ProductsAction{
 		}
 		
 		return new GeneralResult("addProductCategory.success",result).toString();
+	}
+	@RequestMapping("/searchkeywords")
+	public @ResponseBody String searchKeywords(@RequestParam("condition") String condition){
+		DBCollection productc = MongoDbUtil.getCurrentDb().getCollection(PRODUCT);
+		DBObject dbcondition = (DBObject)JSON.parse(condition);
+		List result = productc.distinct(KEYWORDS, dbcondition);
+		return  new GeneralResult("product.searchkeywords.success",result).toString();
 	}
  
 }
