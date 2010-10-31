@@ -17,6 +17,7 @@ import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONCallback;
 
+import org.sc.util.DateUtil;
 import org.sc.util.GeneralResult;
 
 @Controller
@@ -123,5 +124,9 @@ public class DataAction {
 		}
 		r.put("dataset", dataset);
 		return new GeneralResult(collection + ".findByPage",r).toString();
+	}
+	@RequestMapping("/now")
+	public @ResponseBody String now(){
+		return new GeneralResult("now",DateUtil.getCurrentTime()).toString();
 	}
 }

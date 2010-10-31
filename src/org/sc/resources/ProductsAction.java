@@ -338,5 +338,11 @@ public class ProductsAction{
 		List result = productc.distinct(KEYWORDS, dbcondition);
 		return  new GeneralResult("product.searchkeywords.success",result).toString();
 	}
- 
+	@RequestMapping("/category/search")
+	public @ResponseBody String searchCategory(@RequestParam("condition") String condition){
+		DBCollection c = MongoDbUtil.getCurrentDb().getCollection(CATEGORY);
+		DBObject dbcondition = (DBObject)JSON.parse(condition);
+		List result = c.distinct("label", dbcondition);
+		return  new GeneralResult("category.search.success",result).toString();
+	}
 }

@@ -1,16 +1,6 @@
 package org.sc.resources;
 
-import static org.sc.base.Constants.CURRENT_USER;
-import static org.sc.base.Constants.DATA_TYPE;
-import static org.sc.base.Constants.INTEGER_TYPE;
-import static org.sc.base.Constants.ITEM_NAME;
-import static org.sc.base.Constants.KEYWORDS;
-import static org.sc.base.Constants.MONEY_TYPE;
-import static org.sc.base.Constants.NOW;
-import static org.sc.base.Constants.PRODUCT_CATEGORY_TYPE;
-import static org.sc.base.Constants.SELECT_ONE_TYPE;
-import static org.sc.base.Constants.STRING_TYPE;
-import static org.sc.base.Constants.UNIQUE;
+import static org.sc.base.Constants.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,6 +19,7 @@ import org.sc.util.GeneralResult;
 import org.sc.util.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mongodb.BasicDBObject;
@@ -36,6 +27,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
+import com.mongodb.util.JSON;
 
 @Controller
 @RequestMapping("/discount")
@@ -103,23 +95,18 @@ public class DiscountAction {
 					e.printStackTrace();
 					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
 				}
-			}else if (PRODUCT_CATEGORY_TYPE.equals(o.get(DATA_TYPE))){
-				try{
-					if(value != null){
-						String[] tags = StringUtils.split(value, ' ');
-						Set<String> categorys = new HashSet<String>(); 
-						for (String tag : tags){
-							if(tag != null && !"".equals(tag)){
-								keywords.add(tag);
-								categorys.add(tag);
-							}
-						}
-						dbo.put(normalItemName, categorys);
-					}
-				}catch(Exception e){
-					e.printStackTrace();
-					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
+			}else if (DATE_TYPE.equals(o.get(DATA_TYPE))
+					|| PRODUCT_TYPE.equals(o.get(DATA_TYPE))
+					|| STATUS_TYPE.equals(o.get(DATA_TYPE))
+					|| PERIOD_TYPE.equals(o.get(DATA_TYPE))
+					|| PRODUCT_CATEGORY_TYPE.equals(o.get(DATA_TYPE))){
+				if(value != null && !"".equals(value)){
+					keywords.add(value);
+					dbo.put(normalItemName, value);
 				}
+			}else if (PERCENT_TYPE.equals(o.get(DATA_TYPE))){
+				keywords.add(value);
+				dbo.put(normalItemName, Integer.parseInt(value));	
 			}else if (NOW.equals(o.get(DATA_TYPE))){
 				keywords.add(DateUtil.getCurrentDate());
 				dbo.put(normalItemName, DateUtil.getCurrentTime());
@@ -134,7 +121,7 @@ public class DiscountAction {
 					condition.put(normalItemName, value);
 					DBObject r =discountC.findOne(condition);
 					if(r != null){
-						return new GeneralResult("addProduct.failed",normalItemName + StringUtil.toIso8859("不唯一")).toString();
+						return new GeneralResult("addDiscount.failed",normalItemName + StringUtil.toIso8859("不唯一")).toString();
 					}
 				}
 			}
@@ -150,5 +137,12 @@ public class DiscountAction {
 			return new GeneralResult("addDiscount.failed",e.getMessage()).toString();
 		}
 		return new GeneralResult("addDiscount.success",wr.getLastError()).toString();
+	}
+	@RequestMapping("/searchkeywords")
+	public @ResponseBody String searchKeywords(@RequestParam("condition") String condition){
+		DBCollection dc = MongoDbUtil.getCurrentDb().getCollection(DISCOUNT);
+		DBObject dbcondition = (DBObject)JSON.parse(condition);
+		List result = dc.distinct(KEYWORDS, dbcondition);
+		return  new GeneralResult("discount.searchkeywords.success",result).toString();
 	}
 }

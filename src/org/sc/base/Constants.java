@@ -65,6 +65,10 @@ public interface Constants {
 	static public String CURRENT_USER = "currentUser";
 	static public String NOW = "now";
 	static public String KEYWORDS = "keywords";
+	static public String PRODUCT_TYPE = "Product";
+	static public String PERCENT_TYPE = "Percent";
+	static public String STATUS_TYPE = "Status";
+	static public String PERIOD_TYPE = "Period";
 	
 	//数据类型定义
 	static public String ITEM_NAME = "itemName";
