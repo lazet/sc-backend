@@ -69,6 +69,7 @@ public interface Constants {
 	static public String PERCENT_TYPE = "Percent";
 	static public String STATUS_TYPE = "Status";
 	static public String PERIOD_TYPE = "Period";
+	static public String IMAGE = "Image";
 	
 	//数据类型定义
 	static public String ITEM_NAME = "itemName";

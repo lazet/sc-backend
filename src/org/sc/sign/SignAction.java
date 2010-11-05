@@ -12,6 +12,7 @@ import org.sc.util.DateUtil;
 import org.sc.util.GeneralResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -25,7 +26,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/sign")
 public class SignAction {
-	@RequestMapping("/signOn")
+	@RequestMapping(value="/signOn", method=RequestMethod.POST )
 	public @ResponseBody String signOn(@RequestParam("loginName") String loginName, 
 			@RequestParam("password") String token,
 			HttpServletRequest  request,

@@ -19,6 +19,7 @@ import org.sc.util.GeneralResult;
 import org.sc.util.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -47,7 +48,7 @@ public class ProductsAction{
 	static public String PRODUCT = "product";
 	static public Log logger = LogFactory.getLog(ProductsAction.class);
 	
-	@RequestMapping("/add")
+	@RequestMapping(value="/add", method=RequestMethod.POST )
 	public @ResponseBody String add(HttpServletRequest  request) {
 		//获取商品定义列表
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(PRODUCT_DEFINE);
@@ -123,6 +124,13 @@ public class ProductsAction{
 					e.printStackTrace();
 					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
 				}
+			}else if (IMAGE.equals(o.get(DATA_TYPE))){
+				try{
+					dbo.put(normalItemName, value);
+				}catch(Exception e){
+					e.printStackTrace();
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
+				}		
 			}else if (NOW.equals(o.get(DATA_TYPE))){
 				keywords.add(DateUtil.getCurrentDate());
 				dbo.put(normalItemName, DateUtil.getCurrentTime());
@@ -154,13 +162,14 @@ public class ProductsAction{
 		}
 		return new GeneralResult("addProduct.success",wr.getLastError()).toString();
 	}
-	@RequestMapping("/update")
+	@RequestMapping(value="/update", method=RequestMethod.POST )
 	public @ResponseBody String update(HttpServletRequest  request) {
 		//获取商品定义列表
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(PRODUCT_DEFINE);
 		List<DBObject> result = new ArrayList<DBObject>();
 		//获取主键名称
 		String pkItemName = null;
+		Set<String> unindexItemNames = new java.util.HashSet<String>();
 		
 		DBCursor cursor = dbc.find();
 		while(cursor.hasNext()){
@@ -225,13 +234,21 @@ public class ProductsAction{
 					e.printStackTrace();
 					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
 				}
+			}else if (IMAGE.equals(o.get(DATA_TYPE))){
+				unindexItemNames.add(normalItemName);
+				try{
+					dbo.put(normalItemName, value);
+				}catch(Exception e){
+					e.printStackTrace();
+					logger.info(normalItemName + " " + o.get(DATA_TYPE),e);
+				}	
 			}else if (NOW.equals(o.get(DATA_TYPE))){
 				dbo.put(normalItemName, DateUtil.getCurrentTime());
 			}else if (CURRENT_USER.equals(o.get(DATA_TYPE))){
 				dbo.put(normalItemName, MongoDbUtil.getCurrentLoginName());
 			}
 		}
-		this.generatedKeyWords(dbo);
+		this.generatedKeyWords(dbo, unindexItemNames);
 		
 		//更新保存
 		WriteResult wr = null;
@@ -244,11 +261,11 @@ public class ProductsAction{
 		}
 		return new GeneralResult("updateProduct.success",wr.getLastError()).toString();
 	}
-	protected void generatedKeyWords(DBObject dbo){
+	protected void generatedKeyWords(DBObject dbo,Set<String> unindexItemNames){
 		Set<String> keySet = dbo.keySet();
 		Set<String> keywords = new HashSet<String>(); 
 		for(String key:keySet){
-			if(KEYWORDS.equals(key) || "_id".equals(KEYWORDS))
+			if(KEYWORDS.equals(key) || "_id".equals(KEYWORDS) || unindexItemNames.contains(key))
 				continue;
 			Object v = dbo.get(key);
 			if(v == null)
@@ -268,7 +285,7 @@ public class ProductsAction{
 		dbo.put(KEYWORDS, keywords);
 	}
 	/***********以下是品类管理*************/
-	@RequestMapping("/category/get")
+	@RequestMapping(value="/category/get", method=RequestMethod.POST )
 	public @ResponseBody String getCategory(@RequestParam("pageFrom") int pageFrom,@RequestParam("size") int size) {
 		DBCollection dbc = MongoDbUtil.getCurrentDb().getCollection(CATEGORY);
 		List result = new BasicDBList();
