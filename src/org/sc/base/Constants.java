@@ -82,4 +82,9 @@ public interface Constants {
 	static public String ORDER = "order";
 	static public String IS_PREMARY_KEY = "isPrimaryKey";
 	static public String IS_FINAL = "isFinal";
+	
+	//创建时间
+	static public String CREATED_TIME = "createdTime";
+	static public String CREATOR = "creator";
+	static public String ID = "id";
 }
