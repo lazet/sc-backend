@@ -10,17 +10,22 @@ import javax.servlet.http.Cookie;
 import org.sc.security.MongoDbUtil;
 import org.sc.util.DateUtil;
 import org.sc.util.GeneralResult;
+import org.sc.util.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -50,10 +55,25 @@ public class SignAction {
 			session.put(LOGIN_NAME, loginName);
 			session.put("startTime", DateUtil.getCurrentTime());
 			sessionCollection.save(session);
+			//获取角色和权限
+			DBCollection roleCollection = MongoDbUtil.getCurrentDb().getCollection(ROLE);
+			DBObject roleCondition = new BasicDBObject();
+			DBObject inCondition = new BasicDBObject();
+			
+			inCondition.put("$in",dbo.get("roles")==null?new BasicDBList():dbo.get("roles"));
+			roleCondition.put("roleName", inCondition);
+			DBCursor cursor = roleCollection.find(roleCondition);
+			List result = new BasicDBList();
+			while(cursor.hasNext()){
+				DBObject role = cursor.next();
+				result.add(role);
+			}
+			dbo.put("roles",result);
+			
 			return new GeneralResult("signOn.success",dbo).toString();
 		}
 		else{
-			return new GeneralResult("signOn.failed","密码不正确").toString();
+			return new GeneralResult("signOn.failed",StringUtil.toIso8859("用户名或密码不正确")).toString();
 		}
 	}
 	private String genSessionId(HttpServletRequest request){

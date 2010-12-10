@@ -48,6 +48,10 @@ public interface Constants {
 	//组的权限
 	static public String GROUP_FUNCTIONS = "group_functions";
 	
+	static public String ROLE = "role";
+	static public String ROLE_NAME = "roleName";
+	static public String POWERS = "power";
+	
 	//以下放在系统库的DB中(用于自定义授权）
 	static public String FUNCTION = "function";
 	static public String FUNCTION_ID = "function_id";
