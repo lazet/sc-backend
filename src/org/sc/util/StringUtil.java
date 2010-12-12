@@ -11,4 +11,14 @@ public class StringUtil {
 			return null;
 		}
 	}
+	public static String fromIso8859(String messString){
+		if(messString == null)
+			return null;
+		try{
+			return new String(messString.getBytes("iso-8859-1"),"utf-8");
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

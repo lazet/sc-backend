@@ -1,6 +1,7 @@
 package org.sc.base;
 
 public interface Constants {
+	static public String MIX_CODE = "rj~qmo$UBKxzr.@,A*9}?|+0degbmDZ1.53yE";
 	//系统库命名
 	static public String SYS_DB ="sys";
 	//基础信息库变量名
@@ -12,10 +13,18 @@ public interface Constants {
 	static public String ROOT_USER_NAME = "rootUserName";
 	static public String MERCHANT_TYPE = "merchantType";
 	static public String DB_NAME = "dbName";
+	static public String USER_INFO = "userInfo";
+	
 	//SESSION库变量命名
 	static public String SESSION_DB = "session";	
 	static public String SESSION_INFO = "sessionInfo";
 	static public String SESSION_ID = "sessionId";
+	static public String SERVER_KEY = "serverKey";
+	static public String CLIENT_KEY = "clientKey";
+	static public String STAGE = "stage";
+	static public String PASSWORD = "password";
+	static public String START_TIME = "startTime";
+	
 	//商户库变量名
 	static public String USER = "user";
 	static public String USER_ID = "userId";
