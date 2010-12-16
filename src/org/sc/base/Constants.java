@@ -100,4 +100,10 @@ public interface Constants {
 	static public String CREATED_TIME = "createdTime";
 	static public String CREATOR = "creator";
 	static public String ID = "id";
+	
+	//序列号
+	static public String SERIAL = "serial";
+	static public String SERIAL_TYPE = "type";
+	static public String SERIAL_KEY = "key";
+	static public String SERIAL_VALUE = "value";
 }

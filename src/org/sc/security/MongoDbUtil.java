@@ -81,4 +81,13 @@ public class MongoDbUtil {
 			return null;
 		return (String)tl.get().get(LOGIN_NAME);
 	}
+	/**
+	 * 自带商户编号
+	 * @return
+	 */
+	public static BasicDBObject newQueryDBObject(){
+		BasicDBObject dbcondition = new BasicDBObject();
+		dbcondition.put(MERCHANT_ID, tl.get().get(MERCHANT_ID));
+		return dbcondition;
+	}
 }
